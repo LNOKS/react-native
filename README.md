@@ -1,79 +1,98 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+![React Native](https://img.shields.io/badge/react_native-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Redux](https://img.shields.io/badge/redux-%23593d88.svg?style=for-the-badge&logo=redux&logoColor=white)
 
-# Getting Started
+## Project structure
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+```
+src/
+├── ios/                    => iOS project
+├── android/                => Android project        
+├── components/             => shared components
+├── screens/                => screens
+├── utils/                  => utility functions
+├── services/               => files with RTK Query logic
+├── store/                  => Redux store
+├── hooks/                  => custom hooks
+├── theme/                  => theme of the app
+├── translations/           => translations  
+├── App.tsx                 => main component
+├── main.tsx                => entry point
 
-## Step 1: Start the Metro Server
-
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
-
-To start Metro, run the following command from the _root_ of your React Native project:
-
-```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
+env-example                 => example of environment variables
+index.html                  => main html file
 ```
 
-## Step 2: Start your Application
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+## RTK Query Overview
 
-### For Android
+RTK Query is a powerful data fetching and caching tool designed to simplify server-state management in web applications. Built on top of Redux, it provides developers with a set of tools to efficiently load and cache asynchronous data from APIs, while also reducing the amount of boilerplate code needed to manage complex state. This makes it an ideal choice for React applications that interact with external APIs.
 
-```bash
-# using npm
-npm run android
+### Key Features
 
-# OR using Yarn
-yarn android
+- **Automatic Caching:** Reduces unnecessary network requests by reusing cached data.
+- **Polling:** Supports automatic polling of endpoints to keep data fresh.
+- **Data Transformation:** Allows for the transformation of data before it's stored or fetched.
+- **Optimistic Updates:** Facilitates optimistic UI updates for a better user experience.
+
+### Structure within the Project
+
+The `src/services/` directory is dedicated to RTK Query logic, focusing on API calls management. Here's how it's structured:
+
+- **`api.ts`**: This file creates the base API slice using `createApi` from RTK Query. It defines the foundation for making API calls, including setting up endpoints and configuring base URLs and headers.
+
+#### Creating an API Slice
+
+An API slice in RTK Query is created using the `createApi` function, which encapsulates the logic for fetching data from an API. Here's a simplified example:
+
+```typescript
+// src/services/api.ts
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+export const baseApi = createApi({
+    reducerPath: 'api',
+    baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+    endpoints: (builder) => ({
+        // Define endpoints here
+    }),
+});
 ```
 
-### For iOS
+#### Using the API Slice
 
-```bash
-# using npm
-npm run ios
+After defining the API slice, you can create hooks for your endpoints. These hooks are then used within your components to fetch data:
 
-# OR using Yarn
-yarn ios
+```typescript
+// Using an auto-generated hook from an endpoint
+const { data, error, isLoading } = useGetUserDataQuery(userId);
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+### Integration with Redux Store
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+The API slice created by RTK Query is integrated into the Redux store to manage the state of API calls. This integration is handled in the `src/redux/store/index.ts` file, where the API slice's reducer is added to the store:
 
-## Step 3: Modifying your App
+```typescript
+// src/store/index.ts
+import { configureStore } from '@reduxjs/toolkit';
+import { baseApi } from '../../api/baseApi';
 
-Now that you have successfully run the app, let's modify it.
+export const store = configureStore({
+    reducer: {
+        // Other reducers
+        [baseApi.reducerPath]: baseApi.reducer,
+    },
+    // Adding the api middleware
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware().concat(baseApi.middleware),
+});
+```
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+### Conclusion
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+RTK Query streamlines the process of working with server-side data in React applications, offering features like caching, polling, and automatic re-fetching. By organizing API logic in a dedicated directory and integrating it with the Redux store, projects can maintain a clean and scalable structure. This setup ensures that components remain focused on UI logic, delegating data management responsibilities to RTK Query and Redux.
 
-## Congratulations! :tada:
 
-You've successfully run and modified your React Native App. :partying_face:
+## About us
+### Ready to see what's beyond? Check out our website to discover more projects and learn how we're making a difference: [Discover More](https://lnoks.com).
+<img src="https://api.lnoks.com/api/files/gpdni4nbyo5aj5b/ckzlbh3iiyt5n83/logo_purple_pure_hqhbjiEXbL.svg?token=" alt="drawing" width="200" height="100"/>
 
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
